@@ -35,8 +35,5 @@ def test_process_categorical_features(
     categorical_values: List[str],
 ):
     transformed: pd.DataFrame = process_categorical_features(fake_categorical_data)
-    expected_categorical_features = [
-        f"{categorical_feature}_{categorical_value}"
-        for categorical_value in categorical_values
-    ]
-    assert all(x in transformed.columns for x in expected_categorical_features)
+    assert transformed.shape[1] == 3
+    assert transformed.sum().sum() == 4
