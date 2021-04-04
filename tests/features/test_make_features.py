@@ -38,3 +38,5 @@ def test_make_features(
     assert_allclose(
         np.log(data[feature_params.target_col].to_numpy()), target.to_numpy()
     )
+
+    assert all(x not in features.columns for x in feature_params.features_to_drop)
