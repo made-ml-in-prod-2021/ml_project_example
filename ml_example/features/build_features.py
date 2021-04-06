@@ -48,9 +48,7 @@ def drop_features(
     return df, cat_features, num_features
 
 
-def make_features(
-    df: pd.DataFrame, params: FeatureParams, test_mode: bool = False
-) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+def make_features(df: pd.DataFrame, params: FeatureParams) -> pd.DataFrame:
     features = df[params.numerical_features + params.categorical_features]
     features, categorical_features, numerical_features = drop_features(features, params)
 
@@ -64,10 +62,11 @@ def make_features(
     ready_features_df = pd.concat(
         [categorical_features_transformed, numerical_features_df], axis=1
     )
-    if test_mode:
-        return ready_features_df, None
-    else:
-        target = df[params.target_col]
-        if params.use_log_trick:
-            target = pd.Series(np.log(target.to_numpy()))
-        return ready_features_df, target
+    return ready_features_df
+
+
+def extract_target(df: pd.DataFrame, params: FeatureParams) -> pd.Series:
+    target = df[params.target_col]
+    if params.use_log_trick:
+        target = pd.Series(np.log(target.to_numpy()))
+    return target

@@ -11,6 +11,7 @@ from ml_example.enities.train_pipeline_params import (
     read_training_pipeline_params,
 )
 from ml_example.features import make_features
+from ml_example.features.build_features import extract_target
 from ml_example.models import (
     train_model,
     serialize_model,
@@ -28,16 +29,16 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
     logger.info(f"start train pipeline with params {training_pipeline_params}")
     data = read_data(training_pipeline_params.input_data_path)
     logger.info(f"data.shape is {data.shape}")
-
     train_df, val_df = split_train_val_data(
         data, training_pipeline_params.splitting_params
     )
     logger.info(f"train_df.shape is {train_df.shape}")
     logger.info(f"val_df.shape is {val_df.shape}")
 
-    train_features, train_target = make_features(
-        train_df, training_pipeline_params.feature_params, test_mode=False
+    train_features = make_features(
+        train_df, training_pipeline_params.feature_params
     )
+    train_target = extract_target(train_df, training_pipeline_params.feature_params)
 
     logger.info(f"train_features.shape is {train_features.shape}")
 
@@ -45,9 +46,10 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
         train_features, train_target, training_pipeline_params.train_params
     )
 
-    val_features, val_target = make_features(
-        val_df, training_pipeline_params.feature_params, test_mode=False
+    val_features = make_features(
+        val_df, training_pipeline_params.feature_params
     )
+    val_target = extract_target(val_df, training_pipeline_params.feature_params)
 
     val_features_prepared = prepare_val_features_for_predict(
         train_features, val_features

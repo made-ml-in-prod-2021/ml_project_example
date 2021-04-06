@@ -1,5 +1,3 @@
-import pytest
-import os
 from ml_example.data.make_dataset import read_data, split_train_val_data
 from ml_example.enities import SplittingParams
 

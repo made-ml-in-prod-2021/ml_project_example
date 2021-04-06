@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestRegressor
 from ml_example.data.make_dataset import read_data
 from ml_example.enities import TrainingParams
 from ml_example.enities.feature_params import FeatureParams
-from ml_example.features.build_features import make_features
+from ml_example.features.build_features import make_features, extract_target
 from ml_example.models.model_fit_predict import train_model, serialize_model
 
 
@@ -25,8 +25,8 @@ def features_and_target(
         target_col="SalePrice",
     )
     data = read_data(dataset_path)
-    features, target = make_features(data, params)
-
+    features = make_features(data, params)
+    target = extract_target(data, params)
     return features, target
 
 

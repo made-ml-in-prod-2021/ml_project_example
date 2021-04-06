@@ -9,7 +9,7 @@ from ml_example.data import split_train_val_data
 from ml_example.data.make_dataset import read_data
 from ml_example.enities import SplittingParams
 from ml_example.enities.feature_params import FeatureParams
-from ml_example.features.build_features import make_features
+from ml_example.features.build_features import make_features, extract_target
 
 
 @pytest.fixture
@@ -33,10 +33,15 @@ def test_make_features(
     feature_params: FeatureParams, dataset_path: str,
 ):
     data = read_data(dataset_path)
-    features, target = make_features(data, feature_params)
+    features = make_features(data, feature_params)
     assert not pd.isnull(features).any().any()
+    assert all(x not in features.columns for x in feature_params.features_to_drop)
+
+
+def test_extract_features(feature_params: FeatureParams, dataset_path: str):
+    data = read_data(dataset_path)
+
+    target = extract_target(data, feature_params)
     assert_allclose(
         np.log(data[feature_params.target_col].to_numpy()), target.to_numpy()
     )
-
-    assert all(x not in features.columns for x in feature_params.features_to_drop)
