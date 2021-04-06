@@ -1,68 +1,61 @@
-from typing import Tuple, Optional, List
-
 import numpy as np
 import pandas as pd
+from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 from ml_example.enities.feature_params import FeatureParams
 
 
-def impute_features(df: pd.DataFrame, strategy: str) -> pd.DataFrame:
-    imputer = SimpleImputer(missing_values=np.nan, strategy=strategy)
-    features_transformed = imputer.fit_transform(df)
-    features_pandas = pd.DataFrame(
-        features_transformed, columns=df.columns, index=df.index,
-    )
-    return features_pandas
-
-
-def impute_categorical_features(df: pd.DataFrame):
-    return impute_features(df, strategy="most_frequent")
-
-
-def impute_numerical_features(df: pd.DataFrame):
-    return impute_features(df, strategy="mean")
-
-
 def process_categorical_features(categorical_df: pd.DataFrame) -> pd.DataFrame:
-    categorical_df = impute_categorical_features(categorical_df)
-    return pd.get_dummies(categorical_df, dummy_na=False)
+
+    categorical_pipeline = build_categorical_pipeline()
+    return pd.DataFrame(categorical_pipeline.fit_transform(categorical_df).toarray())
+
+
+def build_categorical_pipeline() -> Pipeline:
+    categorical_pipeline = Pipeline(
+        [
+            ("impute", SimpleImputer(missing_values=np.nan, strategy="most_frequent")),
+            ("ohe", OneHotEncoder()),
+        ]
+    )
+    return categorical_pipeline
 
 
 def process_numerical_features(numerical_df: pd.DataFrame) -> pd.DataFrame:
-    return impute_numerical_features(numerical_df)
+    num_pipeline = build_numerical_pipeline()
+    return pd.DataFrame(num_pipeline.fit_transform(numerical_df))
 
 
-def drop_features(
-    df: pd.DataFrame, params: FeatureParams
-) -> Tuple[pd.DataFrame, List[str], List[str]]:
-    num_features = params.numerical_features.copy()
-    cat_features = params.categorical_features.copy()
-
-    df = df.drop(params.features_to_drop, axis=1)
-    for x in params.features_to_drop:
-        if x in num_features:
-            num_features.remove(x)
-        if x in cat_features:
-            cat_features.remove(x)
-    return df, cat_features, num_features
-
-
-def make_features(df: pd.DataFrame, params: FeatureParams) -> pd.DataFrame:
-    features = df[params.numerical_features + params.categorical_features]
-    features, categorical_features, numerical_features = drop_features(features, params)
-
-    categorical_features_df = features[categorical_features]
-    categorical_features_transformed = process_categorical_features(
-        categorical_features_df
+def build_numerical_pipeline() -> Pipeline:
+    num_pipeline = Pipeline(
+        [("impute", SimpleImputer(missing_values=np.nan, strategy="mean")),]
     )
+    return num_pipeline
 
-    numerical_features_df = process_numerical_features(features[numerical_features])
 
-    ready_features_df = pd.concat(
-        [categorical_features_transformed, numerical_features_df], axis=1
+def make_features(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
+    return pd.DataFrame(transformer.transform(df).toarray())
+
+
+def build_transformer(params: FeatureParams) -> ColumnTransformer:
+    transformer = ColumnTransformer(
+        [
+            (
+                "categorical_pipeline",
+                build_categorical_pipeline(),
+                params.categorical_features,
+            ),
+            (
+                "numerical_pipeline",
+                build_numerical_pipeline(),
+                params.numerical_features,
+            ),
+        ]
     )
-    return ready_features_df
+    return transformer
 
 
 def extract_target(df: pd.DataFrame, params: FeatureParams) -> pd.Series:

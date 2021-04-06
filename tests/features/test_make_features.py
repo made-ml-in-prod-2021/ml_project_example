@@ -5,11 +5,9 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
 
-from ml_example.data import split_train_val_data
 from ml_example.data.make_dataset import read_data
-from ml_example.enities import SplittingParams
 from ml_example.enities.feature_params import FeatureParams
-from ml_example.features.build_features import make_features, extract_target
+from ml_example.features.build_features import make_features, extract_target, build_transformer
 
 
 @pytest.fixture
@@ -33,7 +31,9 @@ def test_make_features(
     feature_params: FeatureParams, dataset_path: str,
 ):
     data = read_data(dataset_path)
-    features = make_features(data, feature_params)
+    transformer = build_transformer(feature_params)
+    transformer.fit(data)
+    features = make_features(transformer, data)
     assert not pd.isnull(features).any().any()
     assert all(x not in features.columns for x in feature_params.features_to_drop)
 
