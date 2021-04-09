@@ -1,0 +1,39 @@
+input_data_path: "data/raw/train.csv"
+output_model_path: "models/model.pkl"
+metric_path: "models/metrics.json"
+splitting_params:
+  val_size: 0.1
+  random_state: 3
+train_params:
+  model_type: "RandomForestRegressor"
+feature_params:
+  categorical_features:
+    - "MSZoning"
+    - "Neighborhood"
+    - "RoofStyle"
+    - "MasVnrType"
+    - "BsmtQual"
+    - "BsmtExposure"
+    - "HeatingQC"
+    - "CentralAir"
+    - "KitchenQual"
+    - "FireplaceQu"
+    - "GarageType"
+    - "GarageFinish"
+    - "PavedDrive"
+  numerical_features:
+    - "OverallQual"
+    - "MSSubClass"
+    - "OverallCond"
+    - "GrLivArea"
+    - "GarageCars"
+    - "1stFlrSF"
+    - "Fireplaces"
+    - "BsmtFullBath"
+    - "YrSold"
+    - "YearRemodAdd"
+    - "LotFrontage"
+  features_to_drop:
+    - "YrSold"
+  target_col: "SalePrice"
+
