@@ -77,10 +77,13 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/
-
+/.dvc/cache
+/.dvc/tmp/
+/.dvc/plots/
 # Mac OS-specific storage files
 .DS_Store
+
+
 
 # vim
 *.swp
