@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python ml_example/train_pipeline.py configs/train_config.yaml
+    deps:
+    - path: configs/train_config.yaml
+      md5: a8214e5d42ed773718a32015ffa7da40
+      size: 797
+    - path: data/raw/
+      md5: c41f92055dbc44b32a7d3f2caecd8d16.dir
+      size: 912259
+      nfiles: 6
+    outs:
+    - path: models/metrics.json
+      md5: 779c8e69fa3fa77709934290bf83150e
+      size: 87
+    - path: models/model.pkl
+      md5: 0a481fb9cb9b11c5d10b5afc3678412e
+      size: 10495205
