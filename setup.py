@@ -15,7 +15,8 @@ setup(
         "marshmallow-dataclass==8.3.0",
         "pandas==1.1.5",
         "boto3==1.17.49",
-        "dvc>=2.0.0"
+        "dvc>=2.0.0",
+        "mlflow==1.15.0",
     ],
     license="MIT",
 )

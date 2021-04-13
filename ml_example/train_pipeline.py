@@ -18,6 +18,7 @@ from ml_example.models import (
     predict_model,
     evaluate_model,
 )
+import mlflow
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler(sys.stdout)
@@ -26,53 +27,57 @@ logger.addHandler(handler)
 
 
 def train_pipeline(training_pipeline_params: TrainingPipelineParams):
-    logger.info(f"start train pipeline with params {training_pipeline_params}")
-    data = read_data(training_pipeline_params.input_data_path)
-    logger.info(f"data.shape is {data.shape}")
-    train_df, val_df = split_train_val_data(
-        data, training_pipeline_params.splitting_params
-    )
-    logger.info(f"train_df.shape is {train_df.shape}")
-    logger.info(f"val_df.shape is {val_df.shape}")
+    mlflow.set_tracking_uri("http://3.65.37.156")
+    mlflow.set_experiment("demo1")
+    with mlflow.start_run():
+        logger.info(f"start train pipeline with params {training_pipeline_params}")
+        data = read_data(training_pipeline_params.input_data_path)
+        logger.info(f"data.shape is {data.shape}")
+        train_df, val_df = split_train_val_data(
+            data, training_pipeline_params.splitting_params
+        )
+        logger.info(f"train_df.shape is {train_df.shape}")
+        logger.info(f"val_df.shape is {val_df.shape}")
 
-    transformer = build_transformer(training_pipeline_params.feature_params)
-    transformer.fit(train_df)
-    train_features = make_features(transformer, train_df)
-    train_target = extract_target(train_df, training_pipeline_params.feature_params)
+        transformer = build_transformer(training_pipeline_params.feature_params)
+        transformer.fit(train_df)
+        train_features = make_features(transformer, train_df)
+        train_target = extract_target(train_df, training_pipeline_params.feature_params)
 
-    logger.info(f"train_features.shape is {train_features.shape}")
+        logger.info(f"train_features.shape is {train_features.shape}")
 
-    model = train_model(
-        train_features, train_target, training_pipeline_params.train_params
-    )
+        model = train_model(
+            train_features, train_target, training_pipeline_params.train_params
+        )
 
-    val_features = make_features(transformer, val_df)
-    val_target = extract_target(val_df, training_pipeline_params.feature_params)
+        val_features = make_features(transformer, val_df)
+        val_target = extract_target(val_df, training_pipeline_params.feature_params)
 
-    val_features_prepared = prepare_val_features_for_predict(
-        train_features, val_features
-    )
+        val_features_prepared = prepare_val_features_for_predict(
+            train_features, val_features
+        )
 
-    logger.info(f"val_features.shape is {val_features_prepared.shape}")
-    predicts = predict_model(
-        model,
-        val_features_prepared,
-        training_pipeline_params.feature_params.use_log_trick,
-    )
+        logger.info(f"val_features.shape is {val_features_prepared.shape}")
+        predicts = predict_model(
+            model,
+            val_features_prepared,
+            training_pipeline_params.feature_params.use_log_trick,
+        )
 
-    metrics = evaluate_model(
-        predicts,
-        val_target,
-        use_log_trick=training_pipeline_params.feature_params.use_log_trick,
-    )
+        metrics = evaluate_model(
+            predicts,
+            val_target,
+            use_log_trick=training_pipeline_params.feature_params.use_log_trick,
+        )
+        mlflow.log_metrics(metrics)
 
-    with open(training_pipeline_params.metric_path, "w") as metric_file:
-        json.dump(metrics, metric_file)
-    logger.info(f"metrics is {metrics}")
+        with open(training_pipeline_params.metric_path, "w") as metric_file:
+            json.dump(metrics, metric_file)
+        logger.info(f"metrics is {metrics}")
 
-    path_to_model = serialize_model(model, training_pipeline_params.output_model_path)
+        path_to_model = serialize_model(model, training_pipeline_params.output_model_path)
 
-    return path_to_model, metrics
+        return path_to_model, metrics
 
 
 def prepare_val_features_for_predict(
