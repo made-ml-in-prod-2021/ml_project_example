@@ -1,8 +1,14 @@
 input_data_path: "data/raw/train.csv"
 output_model_path: "models/model.pkl"
 metric_path: "models/metrics.json"
+downloading_params:
+  s3_bucket: for-dvc
+  paths:
+    - train.csv
+    - test.csv
+  output_folder: "data/raw/"
 splitting_params:
-  val_size: 0.1
+  val_size: 0.2
   random_state: 3
 train_params:
   model_type: "RandomForestRegressor"

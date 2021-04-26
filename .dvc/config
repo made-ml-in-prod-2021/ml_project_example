@@ -1,2 +1,0 @@
-['remote "s3"']
-    url = s3://for-dvc/mlexample-dvc-cache
