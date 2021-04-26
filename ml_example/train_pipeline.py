@@ -49,14 +49,10 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
     val_features = make_features(transformer, val_df)
     val_target = extract_target(val_df, training_pipeline_params.feature_params)
 
-    val_features_prepared = prepare_val_features_for_predict(
-        train_features, val_features
-    )
-
-    logger.info(f"val_features.shape is {val_features_prepared.shape}")
+    logger.info(f"val_features.shape is {val_features.shape}")
     predicts = predict_model(
         model,
-        val_features_prepared,
+        val_features,
         training_pipeline_params.feature_params.use_log_trick,
     )
 
@@ -73,17 +69,6 @@ def train_pipeline(training_pipeline_params: TrainingPipelineParams):
     path_to_model = serialize_model(model, training_pipeline_params.output_model_path)
 
     return path_to_model, metrics
-
-
-def prepare_val_features_for_predict(
-    train_features: pd.DataFrame, val_features: pd.DataFrame
-):
-    # small hack to work with categories
-    train_features, val_features = train_features.align(
-        val_features, join="left", axis=1
-    )
-    val_features = val_features.fillna(0)
-    return val_features
 
 
 @click.command(name="train_pipeline")
