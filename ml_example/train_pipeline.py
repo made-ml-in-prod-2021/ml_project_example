@@ -67,6 +67,8 @@ def run_train_pipeline(training_pipeline_params):
     )
     val_features = make_features(transformer, val_df)
     val_target = extract_target(val_df, training_pipeline_params.feature_params)
+
+    logger.info(f"val_features.shape is {val_features.shape}")
     predicts = predict_model(
         model,
         val_features,
