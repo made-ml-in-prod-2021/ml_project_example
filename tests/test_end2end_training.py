@@ -3,7 +3,7 @@ from typing import List
 
 from py._path.local import LocalPath
 
-from ml_example.train_pipeline import train_pipeline
+from ml_example.train_pipeline import run_train_pipeline
 from ml_example.enities import (
     TrainingPipelineParams,
     SplittingParams,
@@ -36,7 +36,7 @@ def test_train_e2e(
         ),
         train_params=TrainingParams(model_type="LinearRegression"),
     )
-    real_model_path, metrics = train_pipeline(params)
+    real_model_path, metrics = run_train_pipeline(params)
     assert metrics["r2_score"] > 0
     assert os.path.exists(real_model_path)
     assert os.path.exists(params.metric_path)

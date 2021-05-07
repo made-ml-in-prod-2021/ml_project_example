@@ -3,9 +3,11 @@ from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
+from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.pipeline import Pipeline
 
 from ml_example.enities.train_params import TrainingParams
 
@@ -28,7 +30,7 @@ def train_model(
 
 
 def predict_model(
-    model: SklearnRegressionModel, features: pd.DataFrame, use_log_trick: bool = True
+    model: Pipeline, features: pd.DataFrame, use_log_trick: bool = True
 ) -> np.ndarray:
     predicts = model.predict(features)
     if use_log_trick:
@@ -48,7 +50,13 @@ def evaluate_model(
     }
 
 
-def serialize_model(model: SklearnRegressionModel, output: str) -> str:
+def create_inference_pipeline(
+    model: SklearnRegressionModel, transformer: ColumnTransformer
+) -> Pipeline:
+    return Pipeline([("feature_part", transformer), ("model_part", model)])
+
+
+def serialize_model(model: object, output: str) -> str:
     with open(output, "wb") as f:
         pickle.dump(model, f)
     return output
