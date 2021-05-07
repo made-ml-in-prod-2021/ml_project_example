@@ -1,5 +1,6 @@
 import os
 import pickle
+from sklearn.utils.validation import check_is_fitted
 from typing import List, Tuple
 
 import pandas as pd
@@ -36,7 +37,7 @@ def test_train_model(features_and_target: Tuple[pd.DataFrame, pd.Series]):
     features, target = features_and_target
     model = train_model(features, target, train_params=TrainingParams())
     assert isinstance(model, RandomForestRegressor)
-    assert model.predict(features).shape[0] == target.shape[0]
+    check_is_fitted(model)
 
 
 def test_serialize_model(tmpdir: LocalPath):
