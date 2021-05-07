@@ -37,7 +37,7 @@ def build_numerical_pipeline() -> Pipeline:
 
 
 def make_features(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
-    return pd.DataFrame(transformer.transform(df).toarray())
+    return transformer.transform(df)
 
 
 def build_transformer(params: FeatureParams) -> ColumnTransformer:

@@ -30,7 +30,7 @@ def train_model(
 
 
 def predict_model(
-    model: SklearnRegressionModel, features: pd.DataFrame, use_log_trick: bool = True
+    model: Pipeline, features: pd.DataFrame, use_log_trick: bool = True
 ) -> np.ndarray:
     predicts = model.predict(features)
     if use_log_trick:
@@ -49,8 +49,12 @@ def evaluate_model(
         "mae": mean_absolute_error(target, predicts),
     }
 
-def create_inference_pipeline(model: SklearnRegressionModel, transformer: ColumnTransformer) -> Pipeline:
-    Pipeline(("fe"))
+
+def create_inference_pipeline(
+    model: SklearnRegressionModel, transformer: ColumnTransformer
+) -> Pipeline:
+    return Pipeline([("feature_part", transformer), ("model_part", model)])
+
 
 def serialize_model(model: object, output: str) -> str:
     with open(output, "wb") as f:
