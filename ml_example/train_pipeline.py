@@ -48,15 +48,15 @@ def train_pipeline(config_path: str):
 
 
 def run_train_pipeline(training_pipeline_params):
-    downloading_params = training_pipeline_params.downloading_params
-    if downloading_params:
-        os.makedirs(downloading_params.output_folder, exist_ok=True)
-        for path in downloading_params.paths:
-            download_data_from_s3(
-                downloading_params.s3_bucket,
-                path,
-                os.path.join(downloading_params.output_folder, Path(path).name),
-            )
+    # downloading_params = training_pipeline_params.downloading_params
+    # if downloading_params:
+    #     os.makedirs(downloading_params.output_folder, exist_ok=True)
+    #     for path in downloading_params.paths:
+    #         download_data_from_s3(
+    #             downloading_params.s3_bucket,
+    #             path,
+    #             os.path.join(downloading_params.output_folder, Path(path).name),
+    #         )
 
     logger.info(f"start train pipeline with params {training_pipeline_params}")
     data = read_data(training_pipeline_params.input_data_path)
